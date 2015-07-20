@@ -4,7 +4,13 @@ import requests
 import json
 import sqlite3
 
+
 CONN = sqlite3.connect("us_zip.db", check_same_thread=False)
+app = Flask(__name__)
+
+
+class NoResultsFound(Exception):
+    pass
 
 
 class Inventory:
@@ -27,10 +33,6 @@ FAKE_INVENTORY._data = {'LAX-005': [('CISCO2811', 10), ('FAKEITEM', 3)],
                         }
 
 
-class NoResultsFound(Exception):
-    pass
-
-
 def get_lat_lng_from_zip(zip_code, country_code=None):
     # country_code is expected to be upper
 
@@ -38,25 +40,28 @@ def get_lat_lng_from_zip(zip_code, country_code=None):
 
     if country_code:
         country_code = country_code.upper()
-        curs.execute("""SELECT
+        curs.execute("""
+                        SELECT
                             cc, postal, lat, lng
                         FROM
                             us_zip_code
                         WHERE
                             cc = ?
-                        AND postal = ?""", (country_code, zip_code))
+                        AND postal = ?
+                    """, (country_code, zip_code))
     else:
-        curs.execute("""SELECT
+        curs.execute("""
+                        SELECT
                             cc, postal, lat, lng
                         FROM
                             us_zip_code
                         WHERE
-                            postal = ? """, (zip_code,))
+                            postal = ?
+                     """, (zip_code,))
 
     return curs.fetchall()
 
 
-# Misc Support Functions
 class JSONResponse(Response):
     def __init__(self, obj):
         Response.__init__(self, json.dumps(obj, indent=4, separators=(',', ': ')),
@@ -102,9 +107,6 @@ class ZipCodeSearch:
 
     def get_lat_lng(self):
         return self.lat, self.lng
-
-
-app = Flask(__name__)
 
 
 @app.route('/')
