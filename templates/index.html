@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <style>
+        #banner {
+            height: 50px;
+            background-color: #f5f5f5;
+        }
+
+        #results {
+            background-color: #f5f5f5;
+        }
+
+        .form-group{
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="banner"></div>
+    <form class="form-inline">
+      <div class="form-group">
+        <input type="text" class="form-control" id="item" placeholder="Item" value="CISCO2811">
+        <input type="text" class="form-control" id="zipcode" placeholder="Zipcode" value="93103">
+        <input type="text" class="form-control" id="country_code" placeholder="CountryCode(Optional)" value="US"><!--should be a list of values-->
+        <button class="btn btn-default" type="button" id="submit-button">Input</button>
+      </div>
+    </form>
+    currently only works for the us
+    <div id="results"></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <script>
+        var main = function(){
+            function sendOverTheWire(){
+                var item = $("#item").val()
+                var zipcode = $("#zipcode").val()
+                var country_code = $("#country_code").val()
+                //console.log(item+"; "+zipcode+"; "+country_code)
+                request = $.ajax({
+                            type: "GET",
+                            url: "_get_fsl",
+                            data: {item: item, zipcode: zipcode, country_code: country_code}//, option: "dev"}
+                            });
+                request.done(function(data){
+                    var data_string = JSON.stringify(data, null, 4);
+                    $("#results").empty();
+                    $("#results").append("<pre><code>"+data_string+"</code></pre>");
+                })
+
+            }
+            $("#submit-button").click(function () {
+                sendOverTheWire();
+            })
+
+            $('input').keypress(function(e) {
+                if (e.which == 13) {
+                    sendOverTheWire();
+              }
+            });
+        }
+
+        $(document).ready(main);
+    </script>
+</body>
+</html>
+

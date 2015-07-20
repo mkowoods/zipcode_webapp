@@ -1,0 +1,22 @@
+#commands to create us_zip_db from geonames file
+#file source http://download.geonames.org/export/zip/
+sqlite3 us_zip.db
+drop table if exists us_zip_code;
+create table us_zip_code (cc text,
+                          postal text,
+                          place text,
+                          adminname1 text,
+                          admincode1 text,
+                          adminname2 text,
+                          admincode2 text,
+                          adminname3 text,
+                          admincode3 text,
+                          lat float,
+                          lng float,
+                          acc int);
+.mode csv
+.separator "\t"
+.import ./US/US.txt us_zip_code
+create index postal_code on us_zip_code(postal);
+create index country on us_zip_code(cc);
+.quit
